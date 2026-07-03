@@ -5,3 +5,7 @@ client/dist
 logs
 *.log
 .DS_Store
+
+
+#Ignore windsurf AI rules
+.windsurfrules
