@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  sharp-ac-remote:
+    build: .
+    container_name: sharp-ac-remote
+    restart: unless-stopped
+    ports:
+      - "5004:5004"
+    environment:
+      - NODE_ENV=production
+      - PORT=5004
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - cloudflare
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared-tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    networks:
+      - cloudflare
+    depends_on:
+      - sharp-ac-remote
+
+networks:
+  cloudflare:
+    driver: bridge

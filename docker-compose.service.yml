@@ -1,0 +1,36 @@
+# Add this service to your existing docker-compose.yml file
+# Copy the services below and paste into your existing docker-compose.yml
+
+services:
+  sharp-ac-remote:
+    build: ./sharp-ac-remote
+    container_name: sharp-ac-remote
+    restart: unless-stopped
+    ports:
+      - "5004:5004"
+    environment:
+      - NODE_ENV=production
+      - PORT=5004
+    volumes:
+      - ./sharp-ac-remote/logs:/app/logs
+    networks:
+      - cloudflare  # Use your existing network name if different
+
+  # Optional: Only add if you don't already have cloudflared running
+  # If you already have a cloudflare tunnel, skip this service
+  cloudflared-ac:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared-ac-tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${AC_TUNNEL_TOKEN}  # Use different variable name to avoid conflicts
+    networks:
+      - cloudflare
+    depends_on:
+      - sharp-ac-remote
+
+# If you don't have a cloudflare network, add this:
+# networks:
+#   cloudflare:
+#     driver: bridge
